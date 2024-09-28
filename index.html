@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .weather {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        #result {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Weather App</h1>
+
+<div class="weather" id="result">
+    <h2>Weather Information</h2>
+    <p><strong>City:</strong> <span id="cityName"></span></p>
+    <p><strong>Temperature:</strong> <span id="temperature"></span>°C</p>
+    <p><strong>Description:</strong> <span id="description"></span></p>
+</div>
+
+<script>
+    const apiKey = '3f373754aa991917dba8a5a7e3073a24'; // Your Weatherstack API key
+    const baseUrl = 'https://api.weatherstack.com/current';
+
+    // Default location if geolocation fails or is denied
+    const defaultLocation = 'Seawater'; // Change this to your preferred default location
+
+    // Function to fetch weather data
+    function fetchWeather(location) {
+        const url = `${baseUrl}?access_key=${apiKey}&query=${location}`;
+        
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success === false) {
+                    alert('Error fetching data: ' + data.error.info);
+                    return;
+                }
+
+                const { location, current } = data;
+                document.getElementById('cityName').textContent = location.name;
+                document.getElementById('temperature').textContent = current.temperature;
+                document.getElementById('description').textContent = current.weather_descriptions[0];
+                document.getElementById('result').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error fetching data');
+            });
+    }
+
+    // Automatically get weather for user's location or default location
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+            const { latitude, longitude } = position.coords;
+
+            // Fetch weather data using coordinates
+            const url = `${baseUrl}?access_key=${apiKey}&query=${latitude},${longitude}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success === false) {
+                        alert('Error fetching data: ' + data.error.info);
+                        return;
+                    }
+
+                    const { location, current } = data;
+                    document.getElementById('cityName').textContent = location.name;
+                    document.getElementById('temperature').textContent = current.temperature;
+                    document.getElementById('description').textContent = current.weather_descriptions[0];
+                    document.getElementById('result').style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error fetching data');
+                });
+        }, error => {
+            console.error('Geolocation error:', error);
+            // Fetch weather data for the default location
+            fetchWeather(defaultLocation);
+        });
+    } else {
+        alert('Geolocation is not supported by this browser.');
+        // Fetch weather data for the default location
+        fetchWeather(defaultLocation);
+    }
+</script>
+
+</body>
+</html>
