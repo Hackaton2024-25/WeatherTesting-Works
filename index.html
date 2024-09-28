@@ -33,13 +33,10 @@
 </div>
 
 <script>
-    const apiKey = '3f373754aa991917dba8a5a7e3073a24'; // Your Weatherstack API key
+    const apiKey = '3f373754aa991917dba8a5a7e3073a24';
     const baseUrl = 'https://api.weatherstack.com/current';
+    const defaultLocation = 'Seawater';
 
-    // Default location if geolocation fails or is denied
-    const defaultLocation = 'Seawater'; // Change this to your preferred default location
-
-    // Function to fetch weather data
     function fetchWeather(location) {
         const url = `${baseUrl}?access_key=${apiKey}&query=${location}`;
         
@@ -63,12 +60,9 @@
             });
     }
 
-    // Automatically get weather for user's location or default location
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(position => {
             const { latitude, longitude } = position.coords;
-
-            // Fetch weather data using coordinates
             const url = `${baseUrl}?access_key=${apiKey}&query=${latitude},${longitude}`;
 
             fetch(url)
@@ -91,12 +85,10 @@
                 });
         }, error => {
             console.error('Geolocation error:', error);
-            // Fetch weather data for the default location
             fetchWeather(defaultLocation);
         });
     } else {
         alert('Geolocation is not supported by this browser.');
-        // Fetch weather data for the default location
         fetchWeather(defaultLocation);
     }
 </script>
